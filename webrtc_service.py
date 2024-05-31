@@ -33,17 +33,14 @@ class WebRTCService:
 
     def start_pipeline(self):
 
-        outsink = (
-            RTSPSink(self.rtsp_url)
-            if self.method == TransformMethod.WEB_RTC_TO_RTSP
-            else FakeSink()
-        )
+        outsink = None
 
-        self.wrtc = WebRTC(
-            outsink=outsink,
-            stun_server="stun:106.54.7.149:3478",
-            turn_server="turn://xav1er:123456@106.54.7.149:3478",
-        )
+        if self.method == TransformMethod.WEB_RTC_TO_RTSP:
+            outsink = RTSPSink(self.rtsp_url)
+        else:
+            outsink = FakeSink()
+
+        self.wrtc = WebRTC(outsink=outsink)
 
         # if self.method == TransformMethod.WEB_RTC_TO_RTSP:
         #     self.wrtc.add_transceiver(WebRTC.RECVONLY, "VP8")
@@ -77,12 +74,14 @@ class WebRTCService:
         def on_negotiation_needed(element):
             print("Negotiation needed!")
 
+        source = None
+
         if self.method == TransformMethod.RTSP_TO_WEB_RTC:
             source = RTSPSource(self.rtsp_url)
-            self.wrtc.add_stream(source)
         else:
             source = TestSource()
-            self.wrtc.add_stream(source)
+
+        self.wrtc.add_stream(source)
 
     async def loop(self):
         async for message in self.ws:

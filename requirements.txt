@@ -1,0 +1,6 @@
+fastapi==0.111.0
+pydantic==2.7.2
+pyee==11.1.0
+PyGObject==3.42.2
+uvicorn==0.30.0
+websockets==12.0
